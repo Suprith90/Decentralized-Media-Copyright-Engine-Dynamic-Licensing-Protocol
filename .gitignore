@@ -1,0 +1,55 @@
+# Node dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Hardhat compilation files and cache
+artifacts/
+cache/
+typechain/
+typechain-types/
+coverage/
+coverage.json
+.hardhat/
+deployed_addresses.json
+
+# Python virtual environments & build artifacts
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+pip-log.txt
+.pytest_cache/
+.mypy_cache/
+
+# Frontend builds
+frontend/dist/
+frontend/.eslintcache
+
+# Mock IPFS local file storage (ignore uploads but keep directory)
+media_processor/mock_ipfs/*
+!media_processor/mock_ipfs/.gitkeep
+
+# Sensitive keys and environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# IDE / Editor configuration
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+.DS_Store
