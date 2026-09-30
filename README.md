@@ -91,10 +91,14 @@ python -m venv .venv
 # Install Python packages
 pip install -r requirements.txt
 
+# Set the private key for a funded local Hardhat account (PowerShell)
+$env:BACKEND_MINT_KEY = "<local Hardhat account private key>"
+
 # Start the FastAPI backend server
 python main.py
 ```
 *The backend server will run on `http://localhost:8000`.*
+The backend no longer includes a default signing key. Use only a disposable local Hardhat account for local development; configure production signing keys through a secret manager and never commit them.
 
 ---
 

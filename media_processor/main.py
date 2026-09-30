@@ -35,9 +35,7 @@ app.mount("/mock_ipfs", StaticFiles(directory=MOCK_IPFS_DIR), name="mock_ipfs")
 HARDHAT_PROVIDER_URL = os.getenv("HARDHAT_PROVIDER_URL", "http://127.0.0.1:8545")
 w3 = Web3(Web3.HTTPProvider(HARDHAT_PROVIDER_URL))
 
-# Hardhat Account #0 (pre-funded deployer/creator account default)
-BACKEND_MINT_ACCOUNT = os.getenv("BACKEND_MINT_ACCOUNT", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
-BACKEND_MINT_KEY = os.getenv("BACKEND_MINT_KEY", "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80")
+BACKEND_MINT_KEY = os.getenv("BACKEND_MINT_KEY")
 
 # Paths to Hardhat artifacts
 BLOCKCHAIN_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "blockchain")
@@ -112,6 +110,14 @@ async def register_asset(
     try:
         if not w3.is_connected():
             raise HTTPException(status_code=503, detail="Local Hardhat node is not running. Please start it using 'npx hardhat node'.")
+
+        if not BACKEND_MINT_KEY:
+            raise HTTPException(status_code=503, detail="Backend mint signer is not configured. Set BACKEND_MINT_KEY.")
+
+        try:
+            mint_account = w3.eth.account.from_key(BACKEND_MINT_KEY).address
+        except ValueError:
+            raise HTTPException(status_code=500, detail="BACKEND_MINT_KEY is invalid.")
         
         contents = await file.read()
         
@@ -156,17 +162,17 @@ async def register_asset(
         except Exception:
             raise HTTPException(status_code=400, detail="Invalid Ethereum address format.")
             
-        nonce = w3.eth.get_transaction_count(BACKEND_MINT_ACCOUNT)
+        nonce = w3.eth.get_transaction_count(mint_account)
         
         # Estimate gas
         gas_estimate = contract.functions.mintCopyright(
             creator_addr_checksum, phash_str, ipfs_metadata_uri
-        ).estimate_gas({"from": BACKEND_MINT_ACCOUNT})
+        ).estimate_gas({"from": mint_account})
         
         tx = contract.functions.mintCopyright(
             creator_addr_checksum, phash_str, ipfs_metadata_uri
         ).build_transaction({
-            "from": BACKEND_MINT_ACCOUNT,
+            "from": mint_account,
             "gas": int(gas_estimate * 1.2),
             "gasPrice": w3.eth.gas_price,
             "nonce": nonce,
