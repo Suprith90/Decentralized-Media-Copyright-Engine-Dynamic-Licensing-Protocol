@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useEffectEvent } from "react";
 import { ethers } from "ethers";
 import axios from "axios";
 import { 
@@ -12,7 +12,6 @@ import {
   FolderPlus, 
   FileCheck, 
   Link as LinkIcon, 
-  User, 
   Lock,
   Cpu
 } from "lucide-react";
@@ -26,7 +25,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("creator"); // "creator" or "checker"
 
   // Web3 State
-  const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const [account, setAccount] = useState("");
   const [registryContract, setRegistryContract] = useState(null);
@@ -59,17 +57,6 @@ export default function App() {
   const [matchThreshold, setMatchThreshold] = useState(10);
   const [checkerResult, setCheckerResult] = useState(null); // { matchFound: bool, conflictOwner: str, tokenId: num, distance: num, pHash: str, originalImage: str }
 
-  // 1. Initialize Contracts & Providers
-  useEffect(() => {
-    initWeb3ReadOnly();
-  }, []);
-
-  useEffect(() => {
-    if (account) {
-      loadRegisteredTokens();
-    }
-  }, [account, registryContract, marketplaceContract]);
-
   // Fallback Read-Only Provider to show assets without MetaMask
   const initWeb3ReadOnly = async () => {
     try {
@@ -77,7 +64,6 @@ export default function App() {
       const regContract = new ethers.Contract(CONTRACT_ADDRESSES.registry, REGISTRY_ABI, readOnlyProvider);
       const marketContract = new ethers.Contract(CONTRACT_ADDRESSES.marketplace, MARKETPLACE_ABI, readOnlyProvider);
       
-      setProvider(readOnlyProvider);
       setRegistryContract(regContract);
       setMarketplaceContract(marketContract);
       
@@ -105,7 +91,6 @@ export default function App() {
       const regContract = new ethers.Contract(CONTRACT_ADDRESSES.registry, REGISTRY_ABI, browserSigner);
       const marketContract = new ethers.Contract(CONTRACT_ADDRESSES.marketplace, MARKETPLACE_ABI, browserSigner);
 
-      setProvider(browserProvider);
       setSigner(browserSigner);
       setAccount(accounts[0]);
       setCreatorAddressInput(accounts[0]);
@@ -179,6 +164,24 @@ export default function App() {
       setIsLoadingTokens(false);
     }
   };
+
+  const initializeReadOnlyContracts = useEffectEvent(() => {
+    Promise.resolve().then(() => initWeb3ReadOnly());
+  });
+
+  const reloadTokensAfterAccountChange = useEffectEvent(() => {
+    loadRegisteredTokens();
+  });
+
+  useEffect(() => {
+    initializeReadOnlyContracts();
+  }, []);
+
+  useEffect(() => {
+    if (account) {
+      reloadTokensAfterAccountChange();
+    }
+  }, [account, registryContract, marketplaceContract]);
 
   // Creator Studio: Select Image File
   const handleFileChange = (e) => {
