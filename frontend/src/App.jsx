@@ -78,7 +78,7 @@ export default function App() {
   // Connect MetaMask
   const connectWallet = async () => {
     if (!window.ethereum) {
-      alert("MetaMask not detected. Please install the MetaMask extension.");
+      setNetworkError("MetaMask was not detected. Install the extension and open this app in a browser where it is enabled.");
       return;
     }
 
@@ -391,7 +391,7 @@ export default function App() {
           <div className="mb-6 p-4 bg-red-950/30 border border-red-800/50 rounded-xl flex items-start gap-3 text-red-300 text-sm">
             <AlertTriangle className="w-5 h-5 shrink-0 text-red-400 mt-0.5" />
             <div>
-              <span className="font-bold">Blockchain Node Error:</span> {networkError}
+              <span className="font-bold">Connection Error:</span> {networkError}
             </div>
           </div>
         )}
