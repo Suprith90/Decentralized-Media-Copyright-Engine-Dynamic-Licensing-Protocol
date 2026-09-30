@@ -35,7 +35,7 @@ app.mount("/mock_ipfs", StaticFiles(directory=MOCK_IPFS_DIR), name="mock_ipfs")
 HARDHAT_PROVIDER_URL = os.getenv("HARDHAT_PROVIDER_URL", "http://127.0.0.1:8545")
 w3 = Web3(Web3.HTTPProvider(HARDHAT_PROVIDER_URL))
 
-BACKEND_MINT_KEY = os.getenv("BACKEND_MINT_KEY")
+BACKEND_MINT_KEY = os.getenv("BACKEND_MINT_KEY", "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80")
 
 # Paths to Hardhat artifacts
 BLOCKCHAIN_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "blockchain")
